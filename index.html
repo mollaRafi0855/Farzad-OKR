@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyCoach — Premium Daily OKR Tracker</title>
+  <meta name="description" content="Ultra-premium daily routine tracker and university class accountability coach with OKR scoring, authenticated profile, and automated daily reports." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="assets/popcat-closed.png" />
+  <link rel="preload" as="image" href="assets/popcat-open.png" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+  <!-- ═══════ LUXURY BLACK & DARK PURPLE GRADIENT BACKGROUND ═══════ -->
+  <div class="purple-ambient-bg">
+    <!-- Survey Corps / Wings of Freedom Emblem Layer -->
+    <div class="bg-wings-crest" id="bgWingsCrest"></div>
+    <div class="purple-light-streak"></div>
+    <div class="purple-orb orb-deep-violet"></div>
+    <div class="purple-orb orb-indigo-glow"></div>
+    <div class="purple-orb orb-neon-purple"></div>
+    <div class="purple-orb orb-ambient-drift"></div>
+    <div class="purple-mesh-grid"></div>
+  </div>
+
+  <!-- Interactive Canvas for Celebrations / Confetti -->
+  <canvas id="celebrationCanvas"></canvas>
+
+  <!-- ═══════ AUTHENTICATION / LOGIN OVERLAY ═══════ -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="auth-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h2>MyCoach Pro</h2>
+        <p>Sign in to access your personal OKR routine & university schedule</p>
+      </div>
+
+      <form id="loginForm" class="auth-form" autocomplete="on">
+        <div class="form-group">
+          <label for="loginUser">Username</label>
+          <div class="form-input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="loginUser" placeholder="FG007" value="FG007" autocomplete="username" required spellcheck="false" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPass">Password</label>
+          <div class="form-input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="loginPass" placeholder="••••••••" value="fg007" autocomplete="current-password" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="remember-label">
+            <input type="checkbox" id="rememberMe" checked />
+            <span class="custom-checkbox"></span>
+            <span>Remember me on this device</span>
+          </label>
+        </div>
+
+        <div class="auth-error" id="authError"></div>
+
+        <button type="submit" class="btn-auth-submit" id="btnAuthSubmit">
+          <span>Sign In to MyCoach</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+
+        <div class="auth-demo-badge">
+          <span>Official Access: <strong>FG007</strong> · Password: <strong>fg007</strong></span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════ MAIN APPLICATION SHELL ═══════ -->
+  <div class="app" id="appShell">
+
+    <!-- ═══════ HEADER ═══════ -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-logo">
+            <span class="brand-pulse"></span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title-row">
+              <h1 class="brand-title">MyCoach</h1>
+              <span class="pro-badge">PRO OKR</span>
+            </div>
+            <p class="brand-subtitle" id="dateLine">Loading calendar…</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Pop Sound Toggle -->
+          <button type="button" class="pop-sound-btn" id="popSoundToggle" title="Toggle Pop Cat Sound" aria-label="Pop Sound">🐱 Pop: ON</button>
+
+          <!-- Live Clock -->
+          <div class="live-clock" id="liveClock">00:00:00</div>
+
+          <!-- User Profile Dropdown Pill -->
+          <div class="user-profile-menu" id="userProfileMenu">
+            <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="User Profile">
+              <div class="user-avatar" id="headerAvatar">FG</div>
+              <span class="user-name" id="headerUsername">FG007</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div class="user-dropdown" id="userDropdown">
+              <div class="user-dropdown-header">
+                <div class="user-avatar-upload-wrap">
+                  <div class="user-avatar-lg" id="dropdownAvatar">FG</div>
+                  <label for="avatarFileInput" class="avatar-upload-badge" title="Upload Custom Profile Picture">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  </label>
+                  <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" />
+                </div>
+                <div>
+                  <div class="user-dropdown-name" id="dropdownUsername">FG007</div>
+                  <div class="user-dropdown-role">Disciplined Member</div>
+                </div>
+              </div>
+
+              <div class="user-dropdown-stats">
+                <div class="ud-stat">
+                  <span class="ud-val" id="udStreak">0d</span>
+                  <span class="ud-lbl">Streak</span>
+                </div>
+                <div class="ud-stat">
+                  <span class="ud-val" id="udScore">0%</span>
+                  <span class="ud-lbl">Today OKR</span>
+                </div>
+                <div class="ud-stat">
+                  <span class="ud-val" id="udReports">0</span>
+                  <span class="ud-lbl">Reports</span>
+                </div>
+              </div>
+
+              <div class="user-dropdown-divider"></div>
+
+              <!-- Profile Photo Actions -->
+              <button type="button" class="user-dropdown-item" id="btnUploadPicTrigger">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span>Upload Profile Photo</span>
+              </button>
+
+              <button type="button" class="user-dropdown-item" id="btnRemovePicTrigger" style="display:none;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                <span>Remove Profile Photo</span>
+              </button>
+
+              <div class="user-dropdown-divider"></div>
+
+              <!-- Routine Dialog Actions -->
+              <button type="button" class="user-dropdown-item" id="btnProfileStatus">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                <span>Routine Status</span>
+              </button>
+
+              <button type="button" class="user-dropdown-item" id="btnProfileSummary">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>Daily Summary</span>
+              </button>
+
+              <button type="button" class="user-dropdown-item" id="btnProfileWeekly">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>7-Day Weekly Review</span>
+              </button>
+
+              <button type="button" class="user-dropdown-item" id="btnProfileReset">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset Today's Routine</span>
+              </button>
+
+              <div class="user-dropdown-divider"></div>
+
+              <!-- Single-User Backup & Vercel Migration Actions -->
+              <button type="button" class="user-dropdown-item highlight" id="btnExportData" title="Download routine data, reports and streak as a JSON file">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export / Backup Data</span>
+              </button>
+
+              <button type="button" class="user-dropdown-item" id="btnImportDataTrigger" title="Restore routine data from a backup JSON file">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Restore / Import Data</span>
+              </button>
+              <input type="file" id="importFileInput" accept=".json" style="display:none;" />
+
+              <div class="user-dropdown-divider"></div>
+
+              <button type="button" class="user-dropdown-item danger" id="btnLogout">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span>Log Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Card -->
+      <div class="progress-card">
+        <div class="progress-info">
+          <div class="progress-label">
+            <span>Today's Habit Execution</span>
+            <strong id="progressPctText">0%</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;">
+              <span class="progress-shimmer"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box stat-score">
+            <span class="stat-num" id="pillScore">0.00</span>
+            <span class="stat-tag">OKR Score</span>
+          </div>
+          <div class="stat-box stat-ok">
+            <span class="stat-num" id="pillOk">0</span>
+            <span class="stat-tag">On Time</span>
+          </div>
+          <div class="stat-box stat-late">
+            <span class="stat-num" id="pillLate">0</span>
+            <span class="stat-tag">Late</span>
+          </div>
+          <div class="stat-box stat-skip">
+            <span class="stat-num" id="pillSkip">0</span>
+            <span class="stat-tag">Skipped</span>
+          </div>
+          <div class="stat-box stat-streak">
+            <span class="stat-num" id="pillStreak">0</span>
+            <span class="stat-tag">🔥 Streak</span>
+          </div>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- ═══════ NAVIGATION TABS ═══════ -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab active" data-tab="tasks" id="tabTasks" role="tab" aria-selected="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Today's Routine
+      </button>
+      <button class="nav-tab" data-tab="reports" id="tabReports" role="tab" aria-selected="false">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        Daily Reports
+        <span class="tab-badge" id="reportCountBadge">0</span>
+      </button>
+    </nav>
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
+    <main class="main-content">
+
+      <!-- ── TAB 1: TODAY'S TASKS ── -->
+      <section class="tab-view view-tasks active" id="viewTasks" role="tabpanel">
+
+        <!-- University Schedule Card -->
+        <div class="schedule-card" id="classBanner"></div>
+
+        <!-- Task Checklist Container -->
+        <div class="tasks-wrapper">
+          <div class="tasks-header">
+            <div class="tasks-header-title">
+              <span class="pulse-dot"></span>
+              <span>DAILY CHECKLIST</span>
+              <span class="checklist-count-chip" id="checklistCountChip">0/0 Done</span>
+            </div>
+            <div class="tasks-header-right-tools">
+              <span class="tasks-header-hint">Tap circle to check in · Deselect to undo</span>
+              <button type="button" class="btn-add-task-trigger" id="btnOpenAddTask" title="Add a new custom activity with time">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Add Task</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Add Task Collapsible Drawer -->
+          <div class="add-task-drawer" id="addTaskDrawer">
+            <form id="addTaskForm" class="add-task-form" autocomplete="off">
+              <div class="add-task-form-title">
+                <span class="drawer-dot"></span>
+                <span>ADD NEW ROUTINE TASK / HABIT</span>
+              </div>
+              <div class="add-task-fields">
+                <div class="add-task-field field-name">
+                  <label for="newTaskName">Activity / Habit Name</label>
+                  <div class="field-input-box">
+                    <span class="field-icon-preview" id="iconPreviewDisplay">🎯</span>
+                    <input type="text" id="newTaskName" placeholder="e.g. Gym Workout, Coding, Reading..." required maxlength="45" />
+                  </div>
+                </div>
+
+                <div class="add-task-field field-time">
+                  <label for="newTaskTime">Planned Time</label>
+                  <div class="field-input-box">
+                    <input type="time" id="newTaskTime" required />
+                  </div>
+                </div>
+
+                <div class="add-task-field field-icon">
+                  <label for="newTaskIcon">Icon</label>
+                  <div class="field-input-box">
+                    <select id="newTaskIcon" class="icon-selector">
+                      <option value="🎯">🎯 Target</option>
+                      <option value="🏋️">🏋️ Gym / Exercise</option>
+                      <option value="💻">💻 Coding / Dev</option>
+                      <option value="📚">📚 Study / Research</option>
+                      <option value="🏃">🏃 Running / Walk</option>
+                      <option value="🧘">🧘 Meditation</option>
+                      <option value="☕">☕ Coffee / Rest</option>
+                      <option value="🎨">🎨 Creative Work</option>
+                      <option value="💊">💊 Vitamins / Meds</option>
+                      <option value="💧">💧 Hydration</option>
+                      <option value="🧹">🧹 Cleaning / Chores</option>
+                      <option value="✨">✨ Personal Goal</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="add-task-actions">
+                <span class="add-task-note">Task will be tracked daily with On-Time/Late comparison and OKR scoring.</span>
+                <div class="add-task-buttons">
+                  <button type="button" class="btn-cancel-add-task" id="btnCancelAddTask">Cancel</button>
+                  <button type="submit" class="btn-save-add-task" id="btnSaveAddTask">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Add to Routine</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <ul class="task-list" id="taskList">
+            <!-- Dynamic task items inserted here -->
+          </ul>
+        </div>
+
+        <!-- Auto-Reset Notice Banner -->
+        <div class="reset-notice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Auto-reset scheduled at <strong>11:59 PM</strong> tonight. Today's report will automatically be saved to archives.</span>
+        </div>
+
+      </section>
+
+      <!-- ── TAB 2: REPORTS VIEW ── -->
+      <section class="tab-view view-reports" id="viewReports" role="tabpanel">
+
+        <!-- Reports Hub Hero Banner -->
+        <div class="reports-hub-card">
+          <div class="reports-hub-info">
+            <h2>Daily Reports Archive</h2>
+            <p>Review your historical performance, class attendance records, and OKR progress over time.</p>
+          </div>
+          <div class="reports-hub-actions">
+            <button type="button" class="btn-primary" id="btnSaveTodayReport">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save Today's Report
+            </button>
+            <button type="button" class="btn-ghost" id="btnLoadDemoReports" title="Load sample past reports for demonstration">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Load Demo History
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Today Snapshot inside Reports Tab -->
+        <div class="today-preview-card" id="todayReportPreview">
+          <!-- Filled dynamically by JS -->
+        </div>
+
+        <!-- Saved Reports List Container -->
+        <div class="reports-list-container">
+          <div class="reports-section-title">
+            <span>SAVED ARCHIVES</span>
+            <span class="report-counter" id="savedReportsCountText">0 reports</span>
+          </div>
+
+          <div class="reports-list" id="reportsList">
+            <!-- Dynamic report cards rendered here -->
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ═══════ TOAST NOTIFICATION ═══════ -->
+    <div class="toast-hub" id="toastHub" aria-live="polite">
+      <div class="toast" id="toast"></div>
+    </div>
+
+    <!-- ═══════ INTERACTIVE MODAL ═══════ -->
+    <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+      <div class="modal-dialog">
+        <button class="modal-close-btn" id="modalClose" aria-label="Close modal">✕</button>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════ INTERACTIVE POP CAT MEME CUSTOM CURSOR ═══════ -->
+  <div class="custom-cursor-cat" id="cursorDot">
+    <div class="popcat-closed" id="popcatClosed"></div>
+    <div class="popcat-open" id="popcatOpen"></div>
+  </div>
+  <div class="custom-cursor-ring" id="cursorRing"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
